@@ -1,0 +1,20 @@
+{% set version = "1.4.0" %}
+
+package:
+    name: libfind
+    version: {{ version }}
+
+source:
+  path: ..
+
+build:
+    number: 0
+    noarch: generic
+
+requirements:
+    run:
+        - cmake
+
+about:
+    summary: A collection of cmake helpers for SCNS
+    license_family: MIT

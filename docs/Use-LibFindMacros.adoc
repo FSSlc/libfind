@@ -1,0 +1,186 @@
+= Use LibFindMacros
+:icons: font
+:toc: right
+:numbered!:
+:source-highlighter: pygments
+
+*cmake-modules-scns* provides a convinent library *LibFindMacros* to help
+writing CMakeLists.txt and cmake find modules. It simplifies the tedious tasks
+of calling cmake macros and handling the results into single macro calls.
+
+The library targets mainly at two use cases:
+
+1. Check for external packages in a project's CMakeLists.
+2. Implement find_package modules.
+
+== For CMakeLists
+
+*LibFindMacros* provides the following macros/functions for external package
+handling in plain CMakeLists:
+
+`libfind_find_package`::
+
+    Dropin replacement of `find_package` which makes all find modules conform
+    to the recommended outputs, i.e.,
+    `<pkg>_{FOUND,DEFINITIONS,INCLUDE_DIRS,LIBRARIES}`. It also treat the
+    "`MPI/mpi/OpenMP/openmp`" package in a special way so they conform to the
+    same output styles.
+
+`libfind_pkgconfig`::
+
+    Find a package using `pkg-config` instead of cmake find modules, thus more
+    packages can be used with cmake. It follows the same standard output style
+    of `libfind_find_package` and handle the `QUIET` and `REQUIRED` args.
+
+`libfind_dedup_libraries`::
+
+    Remove duplicated libraries from a list of libraries, usually the output of
+    several `find_package` calls. This function is smart enough to keep the
+    last occurance of a lib in the list, and handle the `--start-group` and
+    `--end-group` linker flags in the list of libraries.
+
+`libfind_check_external_packages`::
+
+    Check a list of external packages using `libfind_find_package` and gather
+    their outputs into the output of a virtual package. The `QUIET` and
+    `REQUIRED` arguments are supported. It is very convinient to for projects
+    depending on a large list of external packages.
+
+`libfind_format_flags`::
+
+    Format the list of compile definitions, include directories, and libraries
+    to strings that can be used directly in Makefiles or pkgconfig files.
+
+=== Find and use external packages through LibFindMacros
+
+The following is an annotated example of using LibFindMacros to find external
+packages:
+
+[source, cmake]
+----
+# ...
+set(external_pkgs PKG1 PKG2 PKG3 mpi openmp)
+libfind_check_external_packages(xxx_req REQUIRED NAMES ${external_pkgs}) # <1>
+set(external_pkgs_opt PKG4 PKG5)
+libfind_check_external_packages(xxx_opt NAMES ${external_pkgs_opt}) # <2>
+set(found_packages ${external_pkgs})
+foreach(p ${external_pkgs_opt}) # <3>
+  if (${p}_FOUND)
+    list(APPEND found_packages ${p})
+  endif()
+endforeach()
+set(xxx_libs ${xxx_req_LIBRARIES} ${xxx_opt_LIBRARIES})
+libfind_dedup_libraries(xxx_libs ${xxx_libs}) # <4>
+
+include_directories(${xxx_req_INCLUDE_DIRS}) # <5>
+include_directories(${xxx_opt_INCLUDE_DIRS}) # <5>
+add_definitions(${xxx_req_DEFINITIONS}) # <5>
+add_definitions(${xxx_opt_DEFINITIONS}) # <5>
+
+# ...
+target_link_libraries(exe ${xxx_libs}) # <5>
+----
+<1> Check required external packages, note the `REQUIRED` option is enabled.
+<2> Check optional external packages.
+<3> Construct a list of found packages use the standard output.
+<4> Dedup the list of libraries for easy to use.
+<5> Use the results with standard outputs.
+
+== For cmake find modules
+
+Implementing cmake's find module, i.e., the `Find<pkg>.cmake` module for
+`find_package` command, can be tedious and error-prone. One has to handle the
+`REQUIRED` and `QUIET` case correctly, respect the convention to print just
+enough messages, handle external dependencies, and check for errors in the
+package installation.
+
+*LibFindMacros* provides the following macros/functions to make writing find
+modules a charm:
+
+`libfind_check_dependencies`::
+
+    Check a list of external packages and mark them as the dependencies of the
+    current package. The `QUIET` and `REQUIRED` option of current package is
+    automatically forwarded to these external packages.
+
+`libfind_pkg_check_modules`::
+
+    Check an external package using `pkg-config` and mark it as a dependency of
+    the current package. It handle standard options in the same way as
+    `libfind_check_dependencies`.
+
+`libfind_add_definitions`::
+    
+    Record the compile definitions required to use the current package.
+
+`libfind_check_includes`::
+
+    Check if the include directory of the current package is correct and OK.
+
+`libfind_check_components`::
+
+    Check if the library components of the current package are OK.
+
+`libfind_extract_version`::
+
+    Extract a version string from a header file.
+
+`libfind_process`::
+
+    Do the heavy lifting of final production of `<pkg>_{FOUND,XXX}`, error
+    handling, and message printing.
+
+=== Write standard-compiliant find modules
+
+A standard compiliant find module of any package can follow the structure below:
+
+1. Check for the repeatness.
+2. Check the value of required settings variables.
+3. Se the value of defautable settings variables.
+4. Check for external dependencies and record them.
+5. Record package-specific compile definitions.
+6. Check for correctness of include directories.
+7. Check for the correctness of library components.
+8. Produce the expected `find_package` outputs.
+
+This is easily achieved with the above macros and illustrated by the following
+example.
+
+[source, cmake]
+----
+if (pkg_FOUND)
+  return()
+endif()
+
+if (NOT pkg_OPT1)
+  message(FATAL_ERROR "pkg_OPT1 is required but not set")
+endif()
+if (NOT pkg_ROOT)
+  set(pkg_ROOT PKG_ROOT)
+endif()
+
+set(pkg_ext_deps PKG1 PKG2 PKG3)
+libfind_check_dependencies(pkg QUIET REQUIRED ${pkg_ext_deps}) # <1>
+
+libfind_add_definitions(pkg -DUSEA)
+
+libfind_check_includes(pkg NAMES pkg_header.h PATHS ${pkg_ROOT}/include
+  NO_DEFAULT_PATH) # <2>
+
+if (NOT pkg_FIND_COMPONENTS)
+  set(pkg_FIND_COMPONENTS lib1 lib2)
+endif()
+libfind_check_components(pkg NAMES ${pkg_FIND_COMPONENTS}
+  PATHS ${pkg_ROOT}/lib NO_DEFAULT_PATH) # <3>
+
+set(pkg_VERSION "0.1.1")
+
+libfind_process(pkg)
+----
+
+<1> Check for dependencies, the `REQUIRED` option is forced so other package
+are just silient.
+<2> Check for include dirs, note that we search just below the package's
+prefix.
+<3> Check for library components, note that we search just below the package's
+prefix and handle the `COMPONENTS` keyword of `find_package`.
