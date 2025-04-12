@@ -16,15 +16,15 @@
 #    sparskit_LIBRARIES: Libraries for sparskit users.
 #
 
+
 if (sparskit_FOUND)
   return()
 endif()
 
-if (NOT sparskit_ROOT)
-  set(sparskit_ROOT @INSTALL_PREFIX@)
-endif ()
-
 include(LibFindMacros)
+if (NOT sparskit_ROOT)
+  set(sparskit_ROOT /opt/anaconda1anaconda2anaconda3)
+endif ()
 
 libfind_check_components(sparskit NAMES skit
   PATHS ${sparskit_ROOT}/lib64 ${sparskit_ROOT}/lib NO_DEFAULT_PATH)

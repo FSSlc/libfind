@@ -16,15 +16,15 @@
 #    zitsol_LIBRARIES: Libraries for zitsol users.
 #
 
+
 if (zitsol_FOUND)
   return()
 endif()
 
-if (NOT zitsol_ROOT)
-  set(zitsol_ROOT @INSTALL_PREFIX@)
-endif ()
-
 include(LibFindMacros)
+if (NOT zitsol_ROOT)
+  set(zitsol_ROOT /opt/anaconda1anaconda2anaconda3)
+endif ()
 
 libfind_check_dependencies(zitsol NAMES zlib REQUIRED QUIET)
 libfind_check_includes(zitsol NAMES zdefs.h ios.h zprotos.h zheads.h

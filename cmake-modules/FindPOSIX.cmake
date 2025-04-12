@@ -17,10 +17,21 @@ if (POSIX_FOUND)
 endif()
 
 include(LibFindMacros)
+if ( NOT POSIX_ROOT )
+  if (CMAKE_CROSSCOMPILING)
+    if(CMAKE_SYSROOT)
+      set(POSIX_ROOT "${CMAKE_SYSROOT}")
+    else()
+      message(FATAL_ERROR "set POSIX_ROOT or CMAKE_SYSROOT! you are in cross compiling mode with no POSIX_ROOT or CMAKE_SYSROOT set")
+    endif()
+  endif() # end of cross compiling section
+  # normal system
+  set(POSIX_ROOT "")
+endif()
 
 # Search for representive headers of POSIX implementations
 libfind_check_includes(POSIX NAMES stdio.h math.h time.h pthread.h dlfcn.h
-  PATHS /usr/include)
+  PATHS "${POSIX_ROOT}/usr/include")
 if (NOT POSIX_FIND_COMPONENTS)
   # All components at the moment: those for the C language, and those for the
   # POSIX standards, includes threads and dlopen.
@@ -28,7 +39,7 @@ if (NOT POSIX_FIND_COMPONENTS)
 endif()
 # Search for components
 libfind_check_components(POSIX NAMES ${POSIX_FIND_COMPONENTS}
-  PATHS /usr/lib64 /usr/lib)
+  PATHS "${POSIX_ROOT}/usr/lib64" "${POSIX_ROOT}/usr/lib")
 set(POSIX_VERSION "POSIX.1-2008/SUSv4")
 
 libfind_process(POSIX)

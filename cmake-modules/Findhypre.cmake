@@ -16,15 +16,15 @@
 #    hypre_LIBRARIES: Libraries for hypre users.
 #
 
+
 if (hypre_FOUND)
   return()
 endif()
 
-if (NOT hypre_ROOT)
-  set(hypre_ROOT @INSTALL_PREFIX@)
-endif ()
-
 include(LibFindMacros)
+if (NOT hypre_ROOT)
+  set(hypre_ROOT /opt/anaconda1anaconda2anaconda3)
+endif ()
 
 libfind_check_dependencies(hypre NAMES mpi REQUIRED QUIET)
 libfind_check_includes(hypre NAMES HYPRE.h HYPRE_config.h

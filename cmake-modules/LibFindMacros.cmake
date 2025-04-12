@@ -3,6 +3,14 @@
 #
 # A library to simplify cmake find module implementation and assist external
 # package processing in CMakeLists.txt.
+# 
+# #########################################################################
+# 
+# Variables controlling libfind behavior
+# * LIBFIND_DEBUG            : show debug info
+# * LIBFIND_PREFER_STATIC_LIB: when find library, prefer static lib to shared lib
+#
+# #########################################################################
 #
 
 # This library requires behaviors of cmake 3.3, for example the IN_LIST
@@ -14,6 +22,17 @@ cmake_policy(VERSION 3.3)
 if (POLICY CMP0074)
   cmake_policy(SET CMP0074 NEW)
 endif()
+# cmake 3.5+ implement cmake_parse_arguments as a command but cmake <= 3.4
+# implement is as a function. Include CMakeParseArguments to stay compatible.
+include(CMakeParseArguments)
+
+############################################################################
+# prepend static extention before internal CMAKE_FIND_LIBRARY_SUFFIXES
+if (LIBFIND_PREFER_STATIC_LIB)
+  list(INSERT CMAKE_FIND_LIBRARY_SUFFIXES 0 "${CMAKE_STATIC_LIBRARY_SUFFIX}")
+endif()
+############################################################################
+
 
 #############################################################################
 #
@@ -119,11 +138,12 @@ function (libfind_find_mpi)
       string(STRIP "${mpi_LINK_FLAGS}" mpi_LINK_FLAGS)
     endif()
     set(mpi_libraries ${mpi_LINK_FLAGS} ${mpi_LIBS})
-    libfind_remove_dangerious_libs(mpi_libraries ${mpi_libraries})
+    libfind_remove_dangerious_libs(mpi_libraries "${mpi_libraries}")
     set(mpi_DEFINITIONS ${mpi_COMPILE_FLAGS} PARENT_SCOPE)
     set(mpi_INCLUDE_DIRS ${mpi_INCLUDE_PATH} PARENT_SCOPE)
     set(mpi_LIBRARIES ${mpi_libraries} PARENT_SCOPE)
     set(mpi_TARGETS ${mpi_TARGETS} PARENT_SCOPE)
+    set(mpi_VERSION "${MPI_VERSION}" PARENT_SCOPE)
   endif()
 endfunction()
 
@@ -155,7 +175,9 @@ function (libfind_find_openmp)
     endif()
     set(openmp_DEFINITIONS ${omp_FLAGS} PARENT_SCOPE)
     set(openmp_LIBRARIES ${omp_LIBS} PARENT_SCOPE)
-    if (DEFINED OpenMP_C_VERSION)
+    if (DEFINED OpenMP_VERSION)
+      set(openmp_VERSION "${OpenMP_VERSION}")
+    elseif (DEFINED OpenMP_C_VERSION)
       set(openmp_VERSION ${OpenMP_C_VERSION} PARENT_SCOPE)
     elseif(DEFINED OpenMP_C_SPEC_DATE)
       set(openmp_VERSION ${OpenMP_C_SPEC_DATE} PARENT_SCOPE)
@@ -361,6 +383,38 @@ endfunction()
 # Macros for CMakeLists.txt
 #
 #############################################################################
+
+#
+# libfind_option(<var> <desc> [<default>] [CHOICES <value>...] [REQUIRED] [CACHE])
+#
+# Extended version of CMake `option` command that accepts a list to constrain
+# possible values. When `REQUIRED` is set, the default value is required.
+#
+macro (libfind_option VAR DESC)
+  cmake_parse_arguments(LDO "REQUIRED;CACHE" "" "CHOICES" ${ARGN})
+  if (LDO_REQUIRED AND NOT ${VAR} AND NOT LDO_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "Option ${VAR} (${DESC}) is required but not set and no default exists")
+  endif()
+  if (NOT LDO_CHOICES)
+    option(${VAR} ${DESC} ${LDO_UNPARSED_ARGUMENTS})
+  else()
+    if (NOT ${VAR} AND LDO_UNPARSED_ARGUMENTS)
+      set(${VAR} ${LDO_UNPARSED_ARGUMENTS})
+    endif()
+    if(LDO_REQUIRED AND NOT ${VAR} IN_LIST LDO_CHOICES)
+      list(JOIN LDO_CHOICES "|" ldo_msg)
+      message(FATAL_ERROR "Invalid value '${${VAR}}' for option ${VAR} (${DESC}): shall be one of (${ldo_msg})")
+      unset(ldo_msg)
+    endif()
+  endif()
+  if(LDO_CACHE AND ${VAR})
+    set(${VAR} "${$VAR}" CACHE INTERNAL "" FORCE)
+  endif()
+  unset(LDO_REQUIRED)
+  unset(LDO_CACHE)
+  unset(LDO_CHOICES)
+  unset(LDO_UNPARSED_ARGUMENTS)
+endmacro()
 
 #
 # libfind_check_external_packages(PREFIX [REQUIRED] [QUIET] NAMES [PKG [PKG...]])
@@ -662,9 +716,9 @@ function (libfind_remove_dangerious_libs OUT in)
   # MPI and Sunway MPI) will fail if the c library appears before the mpi
   # libraries. So it is dangerious.
   set(dangerious_libs c)
-  set(tmp ${in} ${ARGN})
+  set(tmp "${in}" ${ARGN})
   foreach(l ${dangerious_libs})
-    libfind_remove_library(${l} tmp ${tmp})
+    libfind_remove_library(${l} tmp "${tmp}")
   endforeach()
   set(${OUT} "${tmp}" PARENT_SCOPE)
 endfunction()
@@ -831,29 +885,37 @@ endfunction()
 
 #
 # libfind_check_includes(PREFIX [NO_DEFAULT_PATH] NAMES name [name...]
-#                        PATHS path [path...])
+#                        PATHS path [path...] COUNTER n)
 #
 # Check if the path contain a valid include dir. Will set
-# ${PREFIX}_INCLUDE_DIR to the directory or ${PREFIX}_INCLUDE_DIR-NOT_FOUND
+# ${PREFIX}_INCLUDE_DIR[_$COUNTER] to the directory or
+# ${PREFIX}_INCLUDE_DIR[_$COUNTER]-NOT_FOUND. The counter will be increased
+# every time this macro is called on the package '<PREFIX>'. So multiple
+# includes will be added when called multiple times.
 #
 macro (libfind_check_includes PREFIX)
-  cmake_parse_arguments(LFCI "NO_DEFAULT_PATH" "" "NAMES;PATHS" ${ARGN})
+  cmake_parse_arguments(LFCI "NO_DEFAULT_PATH" "COUNTER" "NAMES;PATHS" ${ARGN})
   set(lfci_args "")
   if (LFCI_NO_DEFAULT_PATH)
     set(lfci_args NO_DEFAULT_PATH)
   endif()
   _normalize_double_slash(LFCI_PATHS ${LFCI_PATHS})
-  find_path(${PREFIX}_INCLUDE_DIR NAMES ${LFCI_NAMES} PATHS ${LFCI_PATHS}
-    ${lfci_args})
+  if(NOT LFCI_COUNTER)
+    set(LFCI_PN "${PREFIX}_INCLUDE_DIR")
+  else()
+    set(LFCI_PN "${PREFIX}_INCLUDE_DIR_${LFCI_COUNTER}")
+  endif()
+  find_path(${LFCI_PN} NAMES ${LFCI_NAMES} PATHS ${LFCI_PATHS} ${lfci_args})
   # HACK: cmake always search for /usr/include even when NO_DEFAULT_PATH is
   # passed. We can not avoid this, so we check that here.
   if (LFCI_NO_DEFAULT_PATH AND
-      NOT ${PREFIX}_INCLUDE_DIR STREQUAL "${PREFIX}_INCLUDE_DIR-NOTFOUND" AND
-      NOT ${PREFIX}_INCLUDE_DIR IN_LIST LFCI_PATHS)
-    set(${PREFIX}_INCLUDE_DIR "${PREFIX}_INCLUDE_DIR-NOTFOUND")
+      NOT ${LFCI_PN} STREQUAL "${LFCI_PN}-NOTFOUND" AND
+      NOT ${LFCI_PN} IN_LIST LFCI_PATHS)
+    set(${LFCI_PN} "${LFCI_PN}-NOTFOUND")
   endif()
-  list(APPEND ${PREFIX}_PROCESS_INCLUDES ${PREFIX}_INCLUDE_DIR)
+  list(APPEND ${PREFIX}_PROCESS_INCLUDES ${LFCI_PN})
   unset(lfci_args)
+  unset(LFCI_PN)
 endmacro()
 
 #
@@ -954,6 +1016,17 @@ function (libfind_extract_version PREFIX VERSION_H)
   endif()
   # Export the version string
   set(${PREFIX}_VERSION "${match}" PARENT_SCOPE)
+endfunction()
+
+#
+# libfind_set_version(<PREFIX> VERSION)
+#
+# Set the version of the package. The version is given as a string. The version
+# is useful for find_package to check for required versions. The find modules
+# built with libfind shall export version using this macro.
+#
+function(libfind_set_version PREFIX VERSION)
+  set(${PREFIX}_VERSION "${VERSION}" PARENT_SCOPE)
 endfunction()
 
 #
@@ -1103,22 +1176,29 @@ function (libfind_process PREFIX)
       mark_as_advanced(${i})
     endforeach()
     # Calculate ROOT_DIR and adjust ROOT
-    if (${PREFIX}_INCLUDE_DIR)
+    if(${PREFIX}_ROOT)
+      set(${PREFIX}_ROOT_DIR ${${PREFIX}_ROOT} CACHE INTERNAL "" FORCE)
+    elseif (${PREFIX}_INCLUDE_DIR)
       if (${PREFIX}_INCLUDE_DIR MATCHES ".*/include")
         get_filename_component(tmp ${${PREFIX}_INCLUDE_DIR} DIRECTORY)
       else()
         set(tmp "${${PREFIX}_INCLUDE_DIR}")
       endif()
-      set(${PREFIX}_ROOT_DIR ${tmp} PARENT_SCOPE)
       set(${PREFIX}_ROOT ${tmp})
-    elseif(${PREFIX}_ROOT)
-      set(${PREFIX}_ROOT_DIR ${${PREFIX}_ROOT} PARENT_SCOPE)
+      set(${PREFIX}_ROOT_DIR ${${PREFIX}_ROOT} CACHE INTERNAL "" FORCE)
     endif()
-    # Set other required variables
-    set (${PREFIX}_DEFINITIONS ${defs} PARENT_SCOPE)
-    set (${PREFIX}_INCLUDE_DIRS ${includes} PARENT_SCOPE)
-    set (${PREFIX}_LIBRARIES ${libs} PARENT_SCOPE)
-    set (${PREFIX}_FOUND TRUE PARENT_SCOPE)
+    # Set xxx_FOUND to cache so as to avoid finding the same package twice.
+    # When the package is find twice with different xxx_ROOT, the check for
+    # INCLUDE_DIR and LIBRARIES will fail if NO_DEFAULT_PATH is present.
+    set(${PREFIX}_FOUND TRUE CACHE INTERNAL "" FORCE)
+    # Set other required variables. These variables are set as cache to support
+    # finding the same package only once.
+    set(${PREFIX}_DEFINITIONS "${defs}" CACHE INTERNAL "" FORCE)
+    set(${PREFIX}_INCLUDE_DIRS "${includes}" CACHE INTERNAL "" FORCE)
+    set(${PREFIX}_LIBRARIES "${libs}" CACHE INTERNAL "" FORCE)
+    if (${PREFIX}_VERSION)
+      set(${PREFIX}_VERSION "${${PREFIX}_VERSION}" CACHE INTERNAL "" FORCE)
+    endif()
     # Output some information if not quiet
     if (NOT quiet)
       set(msg "Found ${PREFIX}")
@@ -1191,3 +1271,59 @@ function (libfind_process PREFIX)
     message(FATAL_ERROR "${msg}\n${vars}")
   endif()
 endfunction()
+
+#############################################################################
+#
+# Site Config Mechanisms
+#
+#############################################################################
+
+#
+# libfind_set_package_root(<pkg> <pkg_ROOT>)
+#
+# Set <pkg>_ROOT variable. The variable is only set when it is not yet set. So
+# it respects customizations such the site config and user-supplied cmake
+# variables.
+#
+macro (libfind_set_package_root PKG PKG_ROOT)
+  if (NOT ${PKG}_ROOT)
+    set(${PKG}_ROOT} ${PKG_ROOT})
+  endif()
+endmacro()
+
+#
+# libfind_load_site_config()
+#
+# Load site.cmake. site.cmake resides in `<prefix>/share/cmake/Modules/scns` and
+# is created and managed by system administrators to override package settings
+# and affect find modules. Currently only `<pkg>_ROOT` can be modified by
+# site.cmake.
+#
+# Note libfind will invoke this in initialization. So users do not need to call
+# this function.
+#
+function (libfind_load_site_config)
+  if (LIBFIND_SITE_CONFIG_LOADED)
+    return()
+  endif()
+  if (libfind_ROOT)
+    set(libfind_site "${libfind_ROOT}/share/cmake/Modules/scns")
+    if (NOT libfind_site IN_LIST CMAKE_MODULE_PATH)
+      list(INSERT CMAKE_MODULE_PATH 0 "${libfind_site}")
+    endif()
+  endif()
+  include(site OPTIONAL RESULT_VARIABLE have_site)
+  if (NOT have_site)
+    return()
+  endif()
+  set(LIBFIND_SITE_CONFIG_LOADED TRUE CACHE INTERNAL "")
+  get_cmake_property(vars VARIABLES)
+  list(FILTER vars INCLUDE REGEX ".+_ROOT")
+  foreach (var ${vars})
+    # NOTE: Since the configure is loaded only once among cmake runs, we export
+    # xxx_ROOT variables into cache. This is important.
+    set(${var} ${${var}} CACHE INTERNAL "" FORCE)
+  endforeach()
+endfunction()
+
+libfind_load_site_config()

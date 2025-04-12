@@ -16,15 +16,15 @@
 #    likwid_LIBRARIES: Libraries for likwid users.
 #
 
+
 if (likwid_FOUND)
   return()
 endif()
 
-if (NOT likwid_ROOT)
-  set(likwid_ROOT @INSTALL_PREFIX@)
-endif ()
-
 include(LibFindMacros)
+if (NOT likwid_ROOT)
+  set(likwid_ROOT /opt/anaconda1anaconda2anaconda3)
+endif ()
 
 libfind_check_includes(likwid NAMES likwid.h
   PATHS ${likwid_ROOT}/include NO_DEFAULT_PATH)

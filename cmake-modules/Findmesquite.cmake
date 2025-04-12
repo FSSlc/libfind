@@ -19,8 +19,9 @@
 #    mesquite_LIBRARIES: Libraries for mesquite users.
 #
 
+include(LibFindMacros)
 if (NOT mesquite_ROOT)
-  set(mesquite_ROOT @INSTALL_PREFIX@)
+  set(mesquite_ROOT /opt/anaconda1anaconda2anaconda3)
 endif ()
 
 set(mesquite_DEFINITIONS "")

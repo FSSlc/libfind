@@ -20,11 +20,10 @@ if (arpack_FOUND)
   return()
 endif()
 
-if (NOT arpack_ROOT)
-  set(arpack_ROOT @INSTALL_PREFIX@)
-endif ()
-
 include(LibFindMacros)
+if (NOT arpack_ROOT)
+  set(arpack_ROOT /opt/anaconda1anaconda2anaconda3)
+endif ()
 
 libfind_check_dependencies(arpack NAMES mpi REQUIRED QUIET)
 libfind_check_components(arpack NAMES parpack arpack

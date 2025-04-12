@@ -16,15 +16,15 @@
 #    trilinos_LIBRARIES: Libraries for trilinos users.
 #
 
+
 if (trilinos_FOUND)
   return()
 endif()
 
-if (NOT trilinos_ROOT)
-  set(trilinos_ROOT @INSTALL_PREFIX@)
-endif ()
-
 include(LibFindMacros)
+if (NOT trilinos_ROOT)
+  set(trilinos_ROOT /opt/anaconda1anaconda2anaconda3)
+endif ()
 
 libfind_check_dependencies(trilinos NAMES umfpack parmetis mpi blas REQUIRED QUIET)
 libfind_check_includes(trilinos NAMES Trilinos_version.h

@@ -16,15 +16,15 @@
 #    metis_LIBRARIES: Libraries for metis users.
 #
 
+
 if (metis_FOUND)
   return()
 endif()
 
-if (NOT metis_ROOT)
-  set(metis_ROOT @INSTALL_PREFIX@)
-endif ()
-
 include(LibFindMacros)
+if (NOT metis_ROOT)
+  set(metis_ROOT /opt/anaconda1anaconda2anaconda3)
+endif ()
 
 libfind_check_includes(metis NAMES metis.h
   PATHS ${metis_ROOT}/include NO_DEFAULT_PATH)

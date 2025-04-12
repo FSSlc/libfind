@@ -16,15 +16,15 @@
 #    hwloc_LIBRARIES: Libraries for hwloc users.
 #
 
+
 if (hwloc_FOUND)
   return()
 endif()
 
-if (NOT hwloc_ROOT)
-  set(hwloc_ROOT @INSTALL_PREFIX@)
-endif ()
-
 include(LibFindMacros)
+if (NOT hwloc_ROOT)
+  set(hwloc_ROOT /opt/anaconda1anaconda2anaconda3)
+endif ()
 
 set(tmp $ENV{PKG_CONFIG_PATH})
 set(ENV{PKG_CONFIG_PATH} ${hwloc_ROOT}/lib/pkgconfig)

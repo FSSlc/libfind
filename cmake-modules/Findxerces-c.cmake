@@ -16,15 +16,15 @@
 #    xerces-c_LIBRARIES: Libraries for xerces-c users.
 #
 
+
 if (xerces-c_FOUND)
   return()
 endif()
 
-if (NOT xerces-c_ROOT)
-  set(xerces-c_ROOT @INSTALL_PREFIX@)
-endif ()
-
 include(LibFindMacros)
+if (NOT xerces-c_ROOT)
+  set(xerces-c_ROOT /opt/anaconda1anaconda2anaconda3)
+endif ()
 
 libfind_check_dependencies(xerces-c NAMES zlib REQUIRED QUIET)
 libfind_check_includes(xerces-c NAMES xercesc/util/XercesDefs.hpp

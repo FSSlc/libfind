@@ -19,18 +19,19 @@
 #    superlu_LIBRARIES: Libraries for superlu users.
 #
 
+include(LibFindMacros)
 if (NOT superlu_ROOT)
-  set(superlu_ROOT @INSTALL_PREFIX@)
+  set(superlu_ROOT /opt/anaconda1anaconda2anaconda3)
 endif ()
 
 #find depends 
 set(superlu_deps_DEFINITIONS "")
 set(superlu_deps_INCLUDE_DIRS "")
 set(superlu_deps_LIBRARIES "")
-if (NOT EXISTS @INSTALL_PREFIX@/share/cmake/cmake-modules)
-  message(FATAL_ERROR "Directory '@INSTALL_PREFIX@' does not seem to contain find modules")
+if (NOT EXISTS /opt/anaconda1anaconda2anaconda3/share/cmake/cmake-modules)
+  message(FATAL_ERROR "Directory '/opt/anaconda1anaconda2anaconda3' does not seem to contain find modules")
 endif()
-list(APPEND CMAKE_MODULE_PATH "@INSTALL_PREFIX@/share/cmake/cmake-modules")
+list(APPEND CMAKE_MODULE_PATH "/opt/anaconda1anaconda2anaconda3/share/cmake/cmake-modules")
 set (REQUIRED_DEPENDS_PKGS openblas)
 foreach (_pkg ${REQUIRED_DEPENDS_PKGS})
   find_package(${_pkg} REQUIRED)

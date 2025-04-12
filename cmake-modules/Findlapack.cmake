@@ -14,15 +14,15 @@
 #    lapack_LIBRARIES: Libraries for lapack users.
 #
 
+
 if (lapack_FOUND)
   return()
 endif()
 
-if (NOT lapack_ROOT)
-  set(lapack_ROOT @INSTALL_PREFIX@)
-endif ()
-
 include(LibFindMacros)
+if (NOT lapack_ROOT)
+  set(lapack_ROOT /opt/anaconda1anaconda2anaconda3)
+endif ()
 
 libfind_check_dependencies(lapack NAMES fortran blas REQUIRED QUIET)
 libfind_check_components(lapack NAMES lapack

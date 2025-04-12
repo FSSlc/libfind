@@ -16,15 +16,15 @@
 #    umfpack_LIBRARIES: Libraries for umfpack users.
 #
 
+
 if (umfpack_FOUND)
   return()
 endif()
 
-if (NOT umfpack_ROOT)
-  set(umfpack_ROOT @INSTALL_PREFIX@)
-endif ()
-
 include(LibFindMacros)
+if (NOT umfpack_ROOT)
+  set(umfpack_ROOT /opt/anaconda1anaconda2anaconda3)
+endif ()
 
 libfind_check_includes(umfpack NAMES umfpack.h
   PATHS ${umfpack_ROOT}/include NO_DEFAULT_PATH)

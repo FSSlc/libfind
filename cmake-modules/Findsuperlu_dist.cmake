@@ -16,15 +16,15 @@
 #    superlu_dist_LIBRARIES: Libraries for superlu_dist users.
 #
 
+
 if (superlu_dist_FOUND)
   return()
 endif()
 
-if (NOT superlu_dist_ROOT)
-  set(superlu_dist_ROOT @INSTALL_PREFIX@)
-endif ()
-
 include(LibFindMacros)
+if (NOT superlu_dist_ROOT)
+  set(superlu_dist_ROOT /opt/anaconda1anaconda2anaconda3)
+endif ()
 
 libfind_check_dependencies(superlu_dist NAMES mpi metis parmetis blas
   REQUIRED QUIET)

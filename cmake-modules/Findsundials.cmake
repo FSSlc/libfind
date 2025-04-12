@@ -16,15 +16,15 @@
 #    sundials_LIBRARIES: Libraries for sundials users.
 #
 
+
 if (sundials_FOUND)
   return()
 endif()
 
-if (NOT sundials_ROOT)
-  set(sundials_ROOT @INSTALL_PREFIX@)
-endif ()
-
 include(LibFindMacros)
+if (NOT sundials_ROOT)
+  set(sundials_ROOT /opt/anaconda1anaconda2anaconda3)
+endif ()
 
 libfind_check_dependencies(sundials NAMES mpi REQUIRED QUIET)
 libfind_check_includes(sundials NAMES sundials/sundials_config.h

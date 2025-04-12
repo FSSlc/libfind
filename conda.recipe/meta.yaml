@@ -1,4 +1,4 @@
-{% set version = "1.4.0" %}
+{% set version = "1.8.7" %}
 
 package:
     name: libfind
@@ -13,7 +13,7 @@ build:
 
 requirements:
     run:
-        - cmake
+        - cmake >=3.12
 
 about:
     summary: A collection of cmake helpers for SCNS

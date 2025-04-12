@@ -16,15 +16,15 @@
 #    mumps_LIBRARIES: Libraries for mumps users.
 #
 
+
 if (mumps_FOUND)
   return()
 endif()
 
-if (NOT mumps_ROOT)
-  set(mumps_ROOT @INSTALL_PREFIX@)
-endif ()
-
 include(LibFindMacros)
+if (NOT mumps_ROOT)
+  set(mumps_ROOT /opt/anaconda1anaconda2anaconda3)
+endif ()
 
 libfind_check_dependencies(mumps NAMES mpi metis parmetis scalapack REQUIRED QUIET)
 libfind_check_includes(mumps NAMES mumps_c_types.h dmumps_c.h

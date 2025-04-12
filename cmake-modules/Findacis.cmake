@@ -19,8 +19,9 @@
 #    acis_LIBRARIES: Libraries for acis users.
 #
 
+include(LibFindMacros)
 if (NOT acis_ROOT)
-  set(acis_ROOT @INSTALL_PREFIX@)
+  set(acis_ROOT /opt/anaconda1anaconda2anaconda3)
 endif ()
 
 set(acis_DEFINITIONS "")

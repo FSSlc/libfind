@@ -16,15 +16,15 @@
 #    scalapack_LIBRARIES: Libraries for scalapack users.
 #
 
+
 if (scalapack_FOUND)
   return()
 endif()
 
-if (NOT scalapack_ROOT)
-  set(scalapack_ROOT @INSTALL_PREFIX@)
-endif ()
-
 include(LibFindMacros)
+if (NOT scalapack_ROOT)
+  set(scalapack_ROOT /opt/anaconda1anaconda2anaconda3)
+endif ()
 
 libfind_check_dependencies(scalapack NAMES mpi lapack blas REQUIRED QUIET)
 libfind_check_components(scalapack NAMES scalapack

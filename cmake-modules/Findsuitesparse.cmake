@@ -16,15 +16,15 @@
 #    suitesparse_LIBRARIES: Libraries for suitesparse users.
 #
 
+
 if (suitesparse_FOUND)
   return()
 endif()
 
-if (NOT suitesparse_ROOT)
-  set(suitesparse_ROOT @INSTALL_PREFIX@)
-endif ()
-
 include(LibFindMacros)
+if (NOT suitesparse_ROOT)
+  set(suitesparse_ROOT /opt/anaconda1anaconda2anaconda3)
+endif ()
 
 libfind_check_dependencies(suitesparse NAMES openmp blas metis REQUIRED QUIET)
 libfind_check_includes(suitesparse NAMES SuiteSparse_config.h

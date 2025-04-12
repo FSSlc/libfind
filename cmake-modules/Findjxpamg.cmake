@@ -16,15 +16,15 @@
 #    jxpamg_LIBRARIES: Libraries for jxpamg users.
 #
 
+
 if(jxpamg_FOUND)
   return()
 endif()
 
-if(NOT jxpamg_ROOT)
-  set(jxpamg_ROOT @INSTALL_PREFIX@)
-endif()
-
 include(LibFindMacros)
+if(NOT jxpamg_ROOT)
+  set(jxpamg_ROOT /opt/anaconda1anaconda2anaconda3)
+endif()
 libfind_check_dependencies(jxpamg NAMES mpi openmp REQUIRED)
 libfind_check_includes(jxpamg NAMES jx_pamg.h
   PATHS ${jxpamg_ROOT}/include NO_DEFAULT_PATH)

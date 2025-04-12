@@ -16,15 +16,15 @@
 #    fftw_LIBRARIES: Libraries for fftw users.
 #
 
+
 if (fftw_FOUND)
   return()
 endif()
 
-if (NOT fftw_ROOT)
-  set(fftw_ROOT @INSTALL_PREFIX@)
-endif ()
-
 include(LibFindMacros)
+if (NOT fftw_ROOT)
+  set(fftw_ROOT /opt/anaconda1anaconda2anaconda3)
+endif ()
 
 set(tmp $ENV{PKG_CONFIG_PATH})
 set(ENV{PKG_CONFIG_PATH} "${fftw_ROOT}/lib/pkgconfig")

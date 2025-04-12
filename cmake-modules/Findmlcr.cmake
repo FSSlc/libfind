@@ -16,15 +16,15 @@
 #    mlcr_LIBRARIES: Libraries for mlcr users.
 #
 
+
 if (mlcr_FOUND)
   return()
 endif()
 
-if (NOT mlcr_ROOT)
-  set(mlcr_ROOT @INSTALL_PREFIX@)
-endif()
-
 include(LibFindMacros)
+if (NOT mlcr_ROOT)
+  set(mlcr_ROOT /opt/anaconda1anaconda2anaconda3)
+endif()
 
 libfind_check_includes(mlcr NAMES mlcr.h PATHS ${mlcr_ROOT}/include)
 libfind_check_components(mlcr NAMES mlcr PATHS ${mlcr_ROOT}/lib64 ${mlcr_ROOT}/lib)

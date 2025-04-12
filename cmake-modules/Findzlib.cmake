@@ -16,15 +16,15 @@
 #    zlib_LIBRARIES: Libraries for zlib users.
 #
 
+
 if (zlib_FOUND)
   return()
 endif()
 
-if (NOT zlib_ROOT)
-  set(zlib_ROOT @INSTALL_PREFIX@)
-endif()
-
 include(LibFindMacros)
+if (NOT zlib_ROOT)
+  set(zlib_ROOT /opt/anaconda1anaconda2anaconda3)
+endif()
 
 libfind_check_includes(zlib NAMES zlib.h PATHS ${zlib_ROOT}/include NO_DEFAULT_PATH)
 libfind_check_components(zlib NAMES z PATHS ${zlib_ROOT}/lib64 ${zlib_ROOT}/lib NO_DEFAULT_PATH)

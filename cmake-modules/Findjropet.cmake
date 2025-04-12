@@ -16,15 +16,15 @@
 #    jropet_LIBRARIES: Libraries for jropet users.
 #
 
+
 if (jropet_FOUND)
   return()
 endif()
 
-if (NOT jropet_ROOT)
-  set(jropet_ROOT @INSTALL_PREFIX@)
-endif ()
-
 include(LibFindMacros)
+if (NOT jropet_ROOT)
+  set(jropet_ROOT /opt/anaconda1anaconda2anaconda3)
+endif ()
 
 libfind_check_dependencies(jropet NAMES mpi REQUIRED QUIET)
 libfind_check_includes(jropet NAMES jropet/jarena.h

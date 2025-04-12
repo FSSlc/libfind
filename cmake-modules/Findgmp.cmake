@@ -16,15 +16,15 @@
 #    gmp_LIBRARIES: Libraries for gmp users.
 #
 
+
 if (gmp_FOUND)
   return()
 endif()
 
-if (NOT gmp_ROOT)
-  set(gmp_ROOT @INSTALL_PREFIX@)
-endif()
-
 include(LibFindMacros)
+if (NOT gmp_ROOT)
+  set(gmp_ROOT /opt/anaconda1anaconda2anaconda3)
+endif()
 
 libfind_check_includes(gmp NAMES gmp.h gmpxx.h PATHS ${gmp_ROOT}/include NO_DEFAULT_PATH)
 libfind_check_components(gmp NAMES gmp gmpxx PATHS ${gmp_ROOT}/lib64 ${gmp_ROOT}/lib NO_DEFAULT_PATH)

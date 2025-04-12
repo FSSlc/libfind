@@ -16,15 +16,15 @@
 #    zoltan_LIBRARIES: Libraries for zoltan users.
 #
 
+
 if (zoltan_FOUND)
   return()
 endif()
 
-if (NOT zoltan_ROOT)
-  set(zoltan_ROOT @INSTALL_PREFIX@)
-endif ()
-
 include(LibFindMacros)
+if (NOT zoltan_ROOT)
+  set(zoltan_ROOT /opt/anaconda1anaconda2anaconda3)
+endif ()
 
 libfind_check_dependencies(zoltan NAMES mpi REQUIRED QUIET)
 libfind_check_includes(zoltan NAMES zoltan.h

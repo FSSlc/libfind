@@ -14,15 +14,16 @@
 #    blas_LIBRARIES: Libraries for blas users.
 #
 
+
 if (blas_FOUND)
   return()
 endif()
 
+include(LibFindMacros)
 if (NOT blas_ROOT)
-  set(blas_ROOT @INSTALL_PREFIX@)
+  set(blas_ROOT /opt/anaconda1anaconda2anaconda3)
 endif ()
 
-include(LibFindMacros)
 
 libfind_check_dependencies(blas NAMES fortran REQUIRED QUIET)
 libfind_check_components(blas NAMES blas

@@ -16,12 +16,14 @@
 #    petsc_LIBRARIES: Libraries for petsc users.
 #
 
+
 if (petsc_FOUND)
   return()
 endif()
 
+include(LibFindMacros)
 if (NOT petsc_ROOT)
-  set(petsc_ROOT @INSTALL_PREFIX@)
+  set(petsc_ROOT /opt/anaconda1anaconda2anaconda3)
 endif ()
 
 set(allowed_petsc_libtypes real complex all)
@@ -33,8 +35,6 @@ elseif (NOT petsc_LIBTYPE IN_LIST allowed_petsc_libtypes)
 elseif (petsc_LIBTYPE STREQUAL "all")
   set(petsc_LIBTYPE real complex)
 endif()
-
-include(LibFindMacros)
 
 libfind_check_dependencies(petsc NAMES mpi openmp parmetis metis scalapack
   superlu_dist mumps REQUIRED QUIET)

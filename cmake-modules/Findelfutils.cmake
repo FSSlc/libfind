@@ -16,15 +16,15 @@
 #    elfutils_LIBRARIES: Libraries for elfutils users.
 #
 
+
 if (elfutils_FOUND)
   return()
 endif()
 
-if (NOT elfutils_ROOT)
-  set(elfutils_ROOT @INSTALL_PREFIX@)
-endif()
-
 include(LibFindMacros)
+if (NOT elfutils_ROOT)
+  set(elfutils_ROOT /opt/anaconda1anaconda2anaconda3)
+endif()
 
 # we have no dependent packages
 libfind_check_includes(elfutils NAMES elfutils/libdw.h elfutils/version.h

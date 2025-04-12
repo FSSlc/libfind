@@ -19,18 +19,20 @@
 #    jasmesh_LIBRARIES: Libraries for jasmesh users.
 #
 
+include(LibFindMacros)
+
 if (NOT jasmesh_ROOT)
-  set(jasmesh_ROOT @INSTALL_PREFIX@)
+  set(jasmesh_ROOT /opt/anaconda1anaconda2anaconda3)
 endif ()
 
 #find depends 
 set(jasmesh_deps_DEFINITIONS "")
 set(jasmesh_deps_INCLUDE_DIRS "")
 set(jasmesh_deps_LIBRARIES "")
-if (NOT EXISTS @INSTALL_PREFIX@/share/cmake/cmake-modules)
-  message(FATAL_ERROR "Directory '@INSTALL_PREFIX@' does not seem to contain find modules")
+if (NOT EXISTS /opt/anaconda1anaconda2anaconda3/share/cmake/cmake-modules)
+  message(FATAL_ERROR "Directory '/opt/anaconda1anaconda2anaconda3' does not seem to contain find modules")
 endif()
-list(APPEND CMAKE_MODULE_PATH "@INSTALL_PREFIX@/share/cmake/cmake-modules")
+list(APPEND CMAKE_MODULE_PATH "/opt/anaconda1anaconda2anaconda3/share/cmake/cmake-modules")
 set (REQUIRED_DEPENDS_PKGS mpi)
 foreach (_pkg ${REQUIRED_DEPENDS_PKGS})
   find_package(${_pkg} REQUIRED)

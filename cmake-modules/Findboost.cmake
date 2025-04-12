@@ -16,15 +16,15 @@
 #    boost_LIBRARIES: Libraries for boost users.
 #
 
+
 if (boost_FOUND)
   return()
 endif()
 
-if (NOT boost_ROOT)
-  set(boost_ROOT @INSTALL_PREFIX@)
-endif ()
-
 include(LibFindMacros)
+if (NOT boost_ROOT)
+  set(boost_ROOT /opt/anaconda1anaconda2anaconda3)
+endif ()
 
 if (NOT EXISTS ${boost_ROOT}/lib OR NOT EXISTS ${boost_ROOT}/include)
   message(AUTHOR_WARNING "Boost at '${boost_ROOT}' is not a regular boost "
@@ -36,7 +36,7 @@ else()
   libfind_check_includes(boost NAMES boost/version.hpp
     PATHS ${boost_ROOT}/include NO_DEFAULT_PATH)
   if (NOT boost_FIND_COMPONENTS)
-    set(boost_FIND_COMPONENTS boost_system)
+    set(boost_FIND_COMPONENTS boost_system boost_filesystem boost_regex)
   endif()
   libfind_check_components(boost NAMES ${boost_FIND_COMPONENTS}
     PATHS ${boost_ROOT}/lib64 ${boost_ROOT}/lib NO_DEFAULT_PATH)

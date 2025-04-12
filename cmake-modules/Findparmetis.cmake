@@ -19,15 +19,15 @@
 #    parmetis_LIBRARIES: Libraries for parmetis users.
 #
 
+
 if (parmetis_FOUND)
   return()
 endif()
 
-if (NOT parmetis_ROOT)
-  set(parmetis_ROOT @INSTALL_PREFIX@)
-endif ()
-
 include(LibFindMacros)
+if (NOT parmetis_ROOT)
+  set(parmetis_ROOT /opt/anaconda1anaconda2anaconda3)
+endif ()
 
 libfind_check_dependencies(parmetis NAMES metis mpi REQUIRED QUIET)
 libfind_check_includes(parmetis NAMES parmetis.h

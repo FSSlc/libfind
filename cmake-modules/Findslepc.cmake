@@ -16,12 +16,14 @@
 #    slepc_LIBRARIES: Libraries for slepc users.
 #
 
+
 if (slepc_FOUND)
   return()
 endif()
 
+include(LibFindMacros)
 if (NOT slepc_ROOT)
-  set(slepc_ROOT @INSTALL_PREFIX@)
+  set(slepc_ROOT /opt/anaconda1anaconda2anaconda3)
 endif ()
 
 set(allowed_slepc_libtypes real complex all)
@@ -36,8 +38,6 @@ elseif (slepc_LIBTYPE STREQUAL "all")
 else()
   set(petsc_LIBTYPE ${slepc_LIBTYPE})
 endif()
-
-include(LibFindMacros)
 
 libfind_check_dependencies(slepc NAMES petsc arpack REQUIRED QUIET)
 libfind_check_includes(slepc NAMES slepc.h slepcversion.h
