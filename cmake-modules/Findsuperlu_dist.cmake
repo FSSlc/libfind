@@ -26,7 +26,7 @@ if (NOT superlu_dist_ROOT)
   set(superlu_dist_ROOT /opt/anaconda1anaconda2anaconda3)
 endif ()
 
-libfind_check_dependencies(superlu_dist NAMES mpi metis parmetis blas
+libfind_check_dependencies(superlu_dist NAMES mpi metis parmetis openblas
   REQUIRED QUIET)
 libfind_check_includes(superlu_dist NAMES superlu_dist_config.h superlu_defs.h
   PATHS ${superlu_dist_ROOT}/include NO_DEFAULT_PATH)

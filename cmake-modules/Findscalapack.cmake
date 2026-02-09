@@ -26,7 +26,7 @@ if (NOT scalapack_ROOT)
   set(scalapack_ROOT /opt/anaconda1anaconda2anaconda3)
 endif ()
 
-libfind_check_dependencies(scalapack NAMES mpi lapack blas REQUIRED QUIET)
+libfind_check_dependencies(scalapack NAMES mpi lapack openblas REQUIRED QUIET)
 libfind_check_components(scalapack NAMES scalapack
   PATHS ${scalapack_ROOT}/lib NO_DEFAULT_PATH)
 

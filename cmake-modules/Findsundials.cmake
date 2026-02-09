@@ -32,18 +32,19 @@ libfind_check_includes(sundials NAMES sundials/sundials_config.h
 
 if (NOT sundials_FIND_COMPONENTS)
   set(sundials_FIND_COMPONENTS      
-     sundials_arkode 
-     sundials_cvode
-     sundials_cvodes
-     sundials_ida
-     sundials_idas
-     sundials_kinsol
-     sundials_nvecserial
-     sundials_farkode 
-     sundials_fcvode
-     sundials_fida
-     sundials_fkinsol
-     sundials_fnvecserial)
+    sundials_arkode 
+    sundials_cvode
+    sundials_cvodes
+    sundials_ida
+    sundials_idas
+    sundials_kinsol
+    sundials_nvecserial
+    sundials_farkode 
+    sundials_fcvode
+    sundials_fida
+    sundials_fkinsol
+    sundials_fnvecserial
+  )
 endif()
 libfind_check_components(sundials NAMES ${sundials_FIND_COMPONENTS}
   PATHS ${sundials_ROOT}/lib NO_DEFAULT_PATH)

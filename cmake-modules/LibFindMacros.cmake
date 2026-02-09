@@ -16,7 +16,11 @@
 # This library requires behaviors of cmake 3.3, for example the IN_LIST
 # keyword in the `if` command. Set it explicitly here so the user does not
 # need to change their CMakeLists.txt.
-cmake_policy(VERSION 3.3)
+# need 3.10 to avoid 
+# 'Compatibility with CMake < 3.5 has been removed from CMake.' and
+# 'Compatibility with CMake < 3.10 will be removed from a future version of CMake.' 
+# errors.
+cmake_policy(VERSION 3.10)
 # Set CMP0074 so that cmake 3.12+ will not complain as long as libfind macros
 # are use to find packages.
 if (POLICY CMP0074)
@@ -1287,7 +1291,7 @@ endfunction()
 #
 macro (libfind_set_package_root PKG PKG_ROOT)
   if (NOT ${PKG}_ROOT)
-    set(${PKG}_ROOT} ${PKG_ROOT})
+    set(${PKG}_ROOT ${PKG_ROOT})
   endif()
 endmacro()
 
