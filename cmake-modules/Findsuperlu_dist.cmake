@@ -29,7 +29,7 @@ endif ()
 libfind_check_dependencies(superlu_dist NAMES mpi metis parmetis openblas
   REQUIRED QUIET)
 libfind_check_includes(superlu_dist NAMES superlu_dist_config.h superlu_defs.h
-  PATHS ${superlu_dist_ROOT}/include NO_DEFAULT_PATH)
+  PATHS ${superlu_dist_ROOT}/include ${superlu_dist_ROOT}/include/superlu-dist NO_DEFAULT_PATH)
 libfind_check_components(superlu_dist NAMES superlu_dist
   PATHS ${superlu_dist_ROOT}/lib64 ${superlu_dist_ROOT}/lib NO_DEFAULT_PATH)
 libfind_extract_version(superlu_dist superlu_defs.h SUPERLU_DIST_MAJOR_VERSION 

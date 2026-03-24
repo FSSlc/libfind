@@ -47,8 +47,8 @@ if (NOT sundials_FIND_COMPONENTS)
   )
 endif()
 libfind_check_components(sundials NAMES ${sundials_FIND_COMPONENTS}
-  PATHS ${sundials_ROOT}/lib NO_DEFAULT_PATH)
+  PATHS ${sundials_ROOT}/lib NO_DEFAULT_PATH OPTIONAL)
 libfind_extract_version(sundials sundials/sundials_config.h
-  SUNDIALS_PACKAGE_VERSION)
+  SUNDIALS_VERSION)
 
 libfind_process(sundials)

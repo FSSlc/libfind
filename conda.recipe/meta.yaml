@@ -1,0 +1,28 @@
+{% set version = "1.8.8" %}
+
+package:
+  name: libfind
+  version: {{ version }}
+
+source:
+  path: ..
+
+build:
+  number: 0
+  noarch: generic
+
+requirements:
+  run:
+    - cmake >=3.12
+
+about:
+  license: MIT
+  summary: Tool for analyzing includes in C++.
+  description: |
+    A collection of cmake helpers for SCNS.
+  homepage: https://github.com/FSSlc/LibFind
+  documentation: https://github.com/FSSlc/LibFind
+
+extra:
+  recipe-maintainers:
+    - fsslc
